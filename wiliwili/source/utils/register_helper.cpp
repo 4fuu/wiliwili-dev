@@ -46,6 +46,7 @@
 #include "view/custom_button.hpp"
 #include "view/animation_image.hpp"
 #include "view/button_close.hpp"
+#include "view/hot_words_view.hpp"
 #include "view/check_box.hpp"
 #include "view/video_profile.hpp"
 #include "view/selector_cell.hpp"
@@ -73,6 +74,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("UpUserSmall", UpUserSmall::create);
     brls::Application::registerXMLView("VideoComment", VideoComment::create);
     brls::Application::registerXMLView("ButtonClose", ButtonClose::create);
+    brls::Application::registerXMLView("HotWordsView", HotWordsView::create);
     brls::Application::registerXMLView("CheckBox", BiliCheckBox::create);
     brls::Application::registerXMLView("SelectorCell", BiliSelectorCell::create);
     brls::Application::registerXMLView("AnimationImage", AnimationImage::create);

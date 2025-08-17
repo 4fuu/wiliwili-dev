@@ -11,6 +11,7 @@
 #include <borealis/views/label.hpp>
 
 #include "utils/event_helper.hpp"
+#include "utils/hot_words_detector.hpp"
 #include "presenter/live_data.hpp"
 #include "live/danmaku_live.hpp"
 #include "view/live_core.hpp"
@@ -22,6 +23,7 @@
 class VideoView;
 class UserInfoView;
 class LiveDanmakuItemView; // 添加前向声明
+class HotWordsView;
 
 class LiveActivity : public brls::Activity, 
                      public LiveDataRequest {
@@ -104,6 +106,7 @@ private:
 
     VideoView* video = nullptr;
     UserInfoView* liveAuthor = nullptr;
+    HotWordsView* hotWordsView = nullptr;
     brls::Box* liveDanmakuContainer = nullptr;
     brls::ScrollingFrame* liveDanmakuList = nullptr;
     brls::Label* liveTitleLabel = nullptr;
@@ -134,6 +137,9 @@ private:
 
     // 主播关注状态
     bool anchor_following = false;
+    
+    // 热词检测器
+    std::unique_ptr<HotWordsDetector> hot_words_detector;
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

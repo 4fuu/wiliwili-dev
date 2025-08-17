@@ -24,6 +24,7 @@
 #include "view/mpv_core.hpp"
 #include "view/user_info.hpp"
 #include "view/live_danmaku_item.hpp"
+#include "view/hot_words_view.hpp"
 
 #include "api/live/extract_messages.hpp"
 #include "api/live/ws_utils.hpp"
@@ -76,6 +77,9 @@ LiveActivity::LiveActivity(int roomid, const std::string& name, const std::strin
     this->liveData.watched_show.text_large = views.empty() ? "获取中..." : views;
     this->liveData.uname                   = ""; // 初始为空，待获取
     this->liveData.cover                   = ""; // 初始为空，待获取
+    
+    // 初始化热词检测器
+    this->hot_words_detector = std::make_unique<HotWordsDetector>();
     
     this->setCommonData();
 }
@@ -169,6 +173,7 @@ void LiveActivity::onContentAvailable()
     if (this->shouldShowSidebar()) {
         // 绑定侧边栏相关的UI元素
         this->liveAuthor = (UserInfoView*)this->getView("live_author");
+        this->hotWordsView = (HotWordsView*)this->getView("hot_words_view");
         this->liveDanmakuContainer = (brls::Box*)this->getView("live_danmaku_container");
         this->liveDanmakuList = (brls::ScrollingFrame*)this->getView("live_danmaku_list");
         this->liveTitleLabel = (brls::Label*)this->getView("live/title");
@@ -179,6 +184,12 @@ void LiveActivity::onContentAvailable()
         // 设置直播标题
         if (this->liveTitleLabel) {
             this->liveTitleLabel->setText(liveData.title);
+        }
+        
+        // 初始化热词视图
+        if (this->hotWordsView && this->hot_words_detector) {
+            this->hotWordsView->set_hot_words_detector(std::shared_ptr<HotWordsDetector>(this->hot_words_detector.get(), [](HotWordsDetector*){}));
+            this->hotWordsView->start_auto_update();
         }
         
         // 初始显示空的主播信息，等待API获取后更新
@@ -549,6 +560,11 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
         if (danmaku.danmaku->user_level < LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE) 
             continue;
         filtered_danmakus.push_back(danmaku);
+        
+        // 添加弹幕文本到热词检测器
+        if (this->hot_words_detector && danmaku.danmaku) {
+            this->hot_words_detector->add_danmaku(danmaku.danmaku->dan);
+        }
     }
     
     // 如果没有通过过滤的弹幕，直接返回
@@ -829,6 +845,11 @@ LiveActivity::~LiveActivity() {
     VideoView::BOTTOM_BAR = ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
     
     threadState->isActive.store(false, std::memory_order_release);
+    
+    // 停止热词视图自动更新
+    if (this->hotWordsView) {
+        this->hotWordsView->stop_auto_update();
+    }
     
     // 断开直播弹幕连接
     danmaku.disconnect();

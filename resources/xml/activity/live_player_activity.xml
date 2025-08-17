@@ -51,10 +51,13 @@
                     id="live_detail_info_box"
                     wireframe="false"
                     width="100%"
-                    height="auto">
+                    height="auto"
+                    axis="row">
+                    
+                <!-- 左侧：主播信息 -->
                 <brls:Box
                         wireframe="false"
-                        width="100%"
+                        width="60%"
                         height="100%"
                         maxHeight="100"
                         alignItems="flexStart"
@@ -78,6 +81,27 @@
                             marginTop="5"
                             textColor="#FFB30F"
                             visibility="visible"/>
+                </brls:Box>
+                
+                <!-- 右侧：热词云 -->
+                <brls:Box
+                        id="hot_words_container"
+                        wireframe="false"
+                        width="40%"
+                        height="100"
+                        marginLeft="10"
+                        marginRight="10"
+                        axis="column"
+                        justifyContent="center">
+                    <brls:Label
+                            text="实时热词"
+                            fontSize="14"
+                            textColor="@theme/font/grey"
+                            marginBottom="5"/>
+                    <HotWordsView
+                            id="hot_words_view"
+                            width="100%"
+                            height="auto"/>
                 </brls:Box>
             </brls:Box>
         </brls:Box>
